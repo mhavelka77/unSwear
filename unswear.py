@@ -14,8 +14,14 @@ class Recorder:
             self.evaluate_word()
             self.buffer = ""
 
+        if key == Key.backspace:
+            self.handle_backspace()
+
         if type(key) is KeyCode:
             self.buffer += key.char
+
+    def handle_backspace(self):
+        self.buffer = self.buffer[:-1]
 
     def on_release(self, key):
         pass
