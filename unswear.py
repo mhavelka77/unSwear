@@ -17,7 +17,7 @@ class Recorder:
         if key == Key.backspace:
             self.handle_backspace()
 
-        if type(key) is KeyCode:
+        if type(key) is KeyCode and key.char is not None:
             self.buffer += key.char
 
     def handle_backspace(self):
@@ -28,15 +28,13 @@ class Recorder:
 
     def evaluate_word(self):
         if self.buffer in self.word_pairs:
-            self.delete_word()
+            self.delete_word(len(self.buffer))
             self.keyboard.type(self.word_pairs[self.buffer] + " ")
 
-    def delete_word(self):
-        self.keyboard.press(Key.ctrl)
-        self.keyboard.press(Key.backspace)
-        self.keyboard.release(Key.backspace)
-        self.keyboard.release(Key.ctrl)
-
+    def delete_word(self, length):
+        for i in range(length + 1):
+            self.keyboard.press(Key.backspace)
+            self.keyboard.release(Key.backspace)
 
 if __name__ == "__main__":
     pairs: dict[str, str] = {}
