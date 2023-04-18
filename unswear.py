@@ -13,9 +13,9 @@ class Recorder:
         if key == Key.space:
             self.evaluate_word()
             self.buffer = ""
-            
+
         if type(key) is KeyCode:
-            self.buffer += key.char if '\\x' not in key.char else ""
+            self.buffer += key.char
 
     def on_release(self, key):
         pass
