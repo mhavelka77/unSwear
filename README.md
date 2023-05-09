@@ -49,3 +49,4 @@ python unswear.py
 If you want to run this on windows without Python, navigate to `dist` folder and run the pre-compiled `Unswear.exe`
 
 **NOTE:** The application will open as a tray icon on the bottom-right side of the taskbar.
+The executable will use the other `replacements.csv` file present in the same folder as the executable. **You should only keep the `dist` folder if you need just the executable.**
