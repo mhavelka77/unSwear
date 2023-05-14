@@ -17,7 +17,7 @@ class Recorder:
         keyboard (Controller): A controller to handle keyboard input.
     """
 
-    def __init__(self, pairs: Dict[str, str]):
+    def __init__(self, pairs: Dict[str, str], icon_tray):
         """
         Initializes the Recorder with the given word pairs.
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
     tray_icon = Icon('name', Image.open('snail.ico'))
     tray_icon.title = 'Right click for options'
-    recorder = Recorder(pairs, tray_icon)
+    recorder = Recorder(word_pairs, tray_icon)
     tray_icon.menu = Menu(MenuItem('Open Git', open_git),
         MenuItem('Quit', lambda: on_quit(tray_icon, recorder))
     )
