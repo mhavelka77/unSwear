@@ -7,6 +7,42 @@ from pystray import Menu, MenuItem, Icon
 from webbrowser import open as open_link
 from PIL import Image
 
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+
+class FileChangeHandler(FileSystemEventHandler):
+    """
+    A file change event handler that monitors modifications to the 'replacements.csv' file.
+
+    Attributes:
+        recorder (Recorder): An instance of the Recorder class.
+    """
+
+    def __init__(self, recorder):
+        """
+        Initializes the FileChangeHandler with the given Recorder instance.
+
+        :param recorder (Recorder): An instance of the Recorder class.
+        """
+        self.recorder = recorder
+
+    def on_modified(self, event):
+        """
+        Callback method triggered when a file modification event occurs.
+
+        If the modified file is 'replacements.csv', it calls the
+        update_word_pairs() method of the associated Recorder instance.
+
+        :param event (FileSystemEvent): The file system event object representing the modification event.
+        """
+        if event.src_path.endswith('replacements.csv'):
+            try:
+                self.recorder.update_word_pairs()
+            except IndexError:
+                pass
+
+
 class Recorder:
     """
     A class to record and evaluate typed words.
@@ -27,7 +63,6 @@ class Recorder:
         self.word_pairs = pairs
         self.buffer = ""
         self.icon_tray = icon_tray
-
 
     def on_press(self, key):
         """
@@ -77,9 +112,24 @@ class Recorder:
             self.keyboard.press(Key.backspace)
             self.keyboard.release(Key.backspace)
 
-def on_quit(icon_tray, recorder):
+    def update_word_pairs(self):
+        """
+        Updates the word pairs in the Recorder object based on the contents of the 'replacements.csv' file.
+        """
+        word_pairs: Dict[str, str] = {}
+        with open('replacements.csv', newline='') as f:
+            reader = csv.reader(f)
+            for item in reader:
+                word_pairs[item[0]] = item[1]
+        self.word_pairs = word_pairs
+        print("Updates")
+
+
+def on_quit(icon_tray, recorder, observer):
+    observer.stop()
     icon_tray.stop()
     recorder.listener.stop()
+
 
 def open_git():
     url = 'https://github.com/mhavelka77/unSwear'
@@ -100,7 +150,12 @@ if __name__ == "__main__":
         MenuItem('Quit', lambda: on_quit(tray_icon, recorder))
     )
 
+    recorder.listener = Listener(on_press=recorder.on_press, on_release=recorder.on_release)    # type: ignore
+    recorder.listener.start()   # type: ignore
 
-    recorder.listener = Listener(on_press=recorder.on_press, on_release=recorder.on_release) # type: ignore
-    recorder.listener.start() # type: ignore
+    event_handler = FileChangeHandler(recorder)
+    observer = Observer()
+    observer.schedule(event_handler, '.', recursive=False)
+    observer.start()
+
     tray_icon.run()
