@@ -43,7 +43,7 @@ class Recorder:
             self.handle_backspace()
 
         if type(key) is KeyCode and key.char is not None:
-            self.buffer += key.char
+            self.buffer += key.char.lower()
 
     def handle_backspace(self):
         """
